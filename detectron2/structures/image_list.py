@@ -78,17 +78,19 @@ class ImageList(object):
             assert t.shape[1:-2] == tensors[0].shape[1:-2], t.shape
 
         image_sizes = tuple(im.shape[-2:] for im in tensors)
-        if torch.jit.is_tracing():
-            # In tracing mode, x.shape[i] is a scalar Tensor, and should not be converted
-            # to int: this will cause the traced graph to have hard-coded shapes.
-            # Instead we convert each shape to a vector with a stack()
-            image_sizes = tuple(torch.stack(x) for x in image_sizes)
+        # if torch.jit.is_tracing():
+        #     # In tracing mode, x.shape[i] is a scalar Tensor, and should not be converted
+        #     # to int: this will cause the traced graph to have hard-coded shapes.
+        #     # Instead we convert each shape to a vector with a stack()
+            
+        #     image_sizes = tuple(torch.stack(x) for x in image_sizes)
 
-            # maximum (H, W) for the last two dims
-            # find the maximum in a tracable way
-            max_size = torch.stack(image_sizes).max(0).values
-        else:
-            max_size = torch.as_tensor([max(s) for s in zip(*[img.shape[-2:] for img in tensors])])
+        #     # maximum (H, W) for the last two dims
+        #     # find the maximum in a tracable way
+        #     max_size = torch.stack(image_sizes).max(0).values
+        # else:
+        #     
+        max_size = torch.as_tensor([max(s) for s in zip(*[img.shape[-2:] for img in tensors])])
 
         if size_divisibility > 1:
             stride = size_divisibility
