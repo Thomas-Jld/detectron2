@@ -9,6 +9,9 @@ import pickle
 import sys
 from typing import Any, ClassVar, Dict, List
 import torch
+import cv2
+import numpy as np
+
 
 from detectron2.config import get_cfg
 from detectron2.data.detection_utils import read_image
@@ -86,11 +89,17 @@ class InferenceAction(Action):
             return
         context = cls.create_context(args)
         for file_name in file_list:
-            img = read_image(file_name, format="BGR")  # predictor expects BGR image.
-            with torch.no_grad():
-                outputs = predictor(img)["instances"]
-                cls.execute_on_outputs(context, {"file_name": file_name, "image": img}, outputs)
-        cls.postexecute(context)
+            while 1:
+                success, img = cam.read()
+                img = np.asarray(img)
+                # img = read_image(file_name, format="BGR")
+                print(img)
+                with torch.no_grad():
+                    outputs = predictor(img)["instances"]
+                    cls.execute_on_outputs(context, {"file_name": file_name, "image": img}, outputs)
+                if cv2.waitKey(1) == 27:
+                    break  # esc to quit
+            cls.postexecute(context)
 
     @classmethod
     def setup_config(
@@ -243,9 +252,6 @@ class ShowAction(InferenceAction):
     def execute_on_outputs(
         cls: type, context: Dict[str, Any], entry: Dict[str, Any], outputs: Instances
     ):
-        import cv2
-        import numpy as np
-
         visualizer = context["visualizer"]
         extractor = context["extractor"]
         image_fpath = entry["file_name"]
@@ -259,7 +265,8 @@ class ShowAction(InferenceAction):
         out_dir = os.path.dirname(out_fname)
         if len(out_dir) > 0 and not os.path.exists(out_dir):
             os.makedirs(out_dir)
-        cv2.imwrite(out_fname, image_vis)
+        cv2.imshow("result", image_vis)
+            
         logger.info(f"Output saved to {out_fname}")
         context["entry_idx"] += 1
 
@@ -316,4 +323,5 @@ def main():
 
 
 if __name__ == "__main__":
+    cam = cv2.VideoCapture(0)
     main()
