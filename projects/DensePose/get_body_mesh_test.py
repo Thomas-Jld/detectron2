@@ -49,7 +49,7 @@ def setup_config(config_fpath: str, model_fpath: str, opts: List[str]):
 
 
 def create_context() -> Dict[str, Any]:
-    vis_specs = ["dp_contour"]
+    vis_specs = ["dp_v"]
     visualizers = []
     extractors = []
     for vis_spec in vis_specs:
@@ -89,21 +89,37 @@ def init_densepose():
     global context
     context = create_context()
 
-
 def infere_on_image(image = None):
-    img = np.asarray(image)
+    t0 = time.time()
+    init_densepose()
+    print(f"Init time: {round(time.time() - t0, 3)}")
+    
+    while 1:
+        t1 = time.time()
+        success, img = cam.read()
+        img = np.asarray(img)
 
-    with torch.no_grad():
-        outputs = predictor(img)["instances"]
+        t2 = time.time()
+        with torch.no_grad():
+            outputs = predictor(img)["instances"]
+            t3 = time.time()
+            execute_on_outputs(context, {"image": img}, outputs)
+            t4 = time.time()
 
-        execute_on_outputs(context, {"image": img}, outputs)
+        if cv2.waitKey(1) == 27:
+            break  # esc to quit
+
+        print(f"Video feed time: {round(t2 - t1, 4)}")
+        print(f"Inference time: {round(t3 - t2, 4)}")
+        print(f"Post execution time: {round(t4 - t3, 4)}\n")
 
 
 
 
 if __name__ == "__main__":
 
-    config_path = "configs/densepose_rcnn_R_50_FPN_s1x.yaml"
+    # config_path = "configs/densepose_rcnn_R_50_FPN_s1x.yaml"
+    config_path = "configs/densepose_rcnn_R_50_FPN_WC1_s1x.yaml"
     model_path = "model_final_162be9.pkl"
     VISUALIZERS: ClassVar[Dict[str, object]] = {
         "dp_contour": DensePoseResultsContourVisualizer,
