@@ -77,15 +77,19 @@ def execute_on_outputs(context: Dict[str, Any], entry: Dict[str, Any], outputs):
     cv2.imshow("result", image_vis)
 
 
+def init_densepose():
+    print(f"Loading config from {config_path}")
+    print(f"Loading model from {model_path}")
+    opts = []
+    global cfg
+    cfg = setup_config(config_path, model_path, opts)
+    global predictor
+    predictor = DefaultPredictor(cfg)
+    global context
+    context = create_context()
 
 def infere_on_image(image = None):
-    print(f"Loading config from {config_path}")
-    opts = []
-    cfg = setup_config(config_path, model_path, opts)
-    print(f"Loading model from {model_path}")
-    predictor = DefaultPredictor(cfg)
-
-    context = create_context()
+    init_densepose()
 
     while 1:
         success, img = cam.read()
@@ -97,8 +101,6 @@ def infere_on_image(image = None):
             break  # esc to quit
 
 
-def main():
-    infere_on_image()
 
 
 if __name__ == "__main__":
@@ -114,4 +116,4 @@ if __name__ == "__main__":
     }
 
     cam = cv2.VideoCapture(0)
-    main()
+    infere_on_image()
