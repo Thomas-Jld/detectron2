@@ -120,7 +120,8 @@ if __name__ == "__main__":
 
     # config_path = "configs/densepose_rcnn_R_50_FPN_s1x.yaml"
     config_path = "configs/densepose_rcnn_R_50_FPN_WC1_s1x.yaml"
-    model_path = "model_final_162be9.pkl"
+    # model_path = "model_final_162be9.pkl"
+    model_path = "model_final_289019.pkl"
     VISUALIZERS: ClassVar[Dict[str, object]] = {
         "dp_contour": DensePoseResultsContourVisualizer,
         "dp_segm": DensePoseResultsFineSegmentationVisualizer,
