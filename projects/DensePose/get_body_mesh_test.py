@@ -19,6 +19,7 @@ from detectron2.structures.boxes import BoxMode
 from detectron2.structures.instances import Instances
 from detectron2.utils.logger import setup_logger
 
+
 from densepose import add_densepose_config, add_hrnet_config
 from densepose.utils.logger import verbosity_to_level
 from densepose.vis.base import CompoundVisualizer
