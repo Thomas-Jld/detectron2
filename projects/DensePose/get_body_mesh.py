@@ -74,8 +74,7 @@ def execute_on_outputs(context: Dict[str, Any], entry: Dict[str, Any], outputs):
     image = cv2.cvtColor(entry["image"], cv2.COLOR_BGR2GRAY)
     image = np.tile(image[:, :, np.newaxis], [1, 1, 3])
     data = extractor(outputs)
-    image_vis = visualizer.visualize(np.zeros((image.shape[0],image.shape[1],3), np.uint8) , data)
-    cv2.imshow("result", image_vis)
+    return visualizer.visualize(np.zeros((image.shape[0],image.shape[1],3), np.uint8) , data)
 
 
 def init_densepose():
@@ -96,7 +95,7 @@ def infere_on_image(image = None):
     with torch.no_grad():
         outputs = predictor(img)["instances"]
 
-        execute_on_outputs(context, {"image": img}, outputs)
+        return execute_on_outputs(context, {"image": img}, outputs)
 
 
 
@@ -112,6 +111,3 @@ if __name__ == "__main__":
         "dp_v": DensePoseResultsVVisualizer,
         "bbox": ScoredBoundingBoxVisualizer,
     }
-
-    cam = cv2.VideoCapture(0)
-    infere_on_image()
